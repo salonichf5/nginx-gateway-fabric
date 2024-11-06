@@ -1,4 +1,4 @@
-package v1alpha1
+package v1alpha2
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -7,12 +7,11 @@ import (
 
 // +genclient
 // +kubebuilder:object:root=true
-// +kubebuilder:deprecatedversion:warning="The 'v1alpha1' version of ObservabilityPolicy API is deprecated, please migrate to 'v1alpha2'"
+// +kubebuilder:storageversion
 // +kubebuilder:subresource:status
 // +kubebuilder:resource:categories=nginx-gateway-fabric,scope=Namespaced
 // +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
 // +kubebuilder:metadata:labels="gateway.networking.k8s.io/policy=direct"
-//nolint:lll
 
 // ObservabilityPolicy is a Direct Attached Policy. It provides a way to configure observability settings for
 // the NGINX Gateway Fabric data plane. Used in conjunction with the NginxProxy CRD that is attached to the
@@ -48,6 +47,7 @@ type ObservabilityPolicySpec struct {
 	// Objects must be in the same namespace as the policy.
 	// Support: HTTPRoute, GRPCRoute.
 	//
+	// +kubebuilder:validation:MinItems=1
 	// +kubebuilder:validation:MaxItems=16
 	// +kubebuilder:validation:XValidation:message="TargetRef Kind must be: HTTPRoute or GRPCRoute",rule="(self.exists(t, t.kind=='HTTPRoute') || self.exists(t, t.kind=='GRPCRoute'))"
 	// +kubebuilder:validation:XValidation:message="TargetRef Group must be gateway.networking.k8s.io.",rule="self.all(t, t.group=='gateway.networking.k8s.io')"
@@ -97,6 +97,25 @@ type Tracing struct {
 	// +listMapKey=key
 	// +kubebuilder:validation:MaxItems=64
 	SpanAttributes []SpanAttribute `json:"spanAttributes,omitempty"`
+}
+
+// SpanAttribute is a key value pair to be added to a tracing span.
+type SpanAttribute struct {
+	// Key is the key for a span attribute.
+	// Format: must have all '"' escaped and must not contain any '$' or end with an unescaped '\'
+	//
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=255
+	// +kubebuilder:validation:Pattern=`^([^"$\\]|\\[^$])*$`
+	Key string `json:"key"`
+
+	// Value is the value for a span attribute.
+	// Format: must have all '"' escaped and must not contain any '$' or end with an unescaped '\'
+	//
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=255
+	// +kubebuilder:validation:Pattern=`^([^"$\\]|\\[^$])*$`
+	Value string `json:"value"`
 }
 
 // TraceStrategy defines the tracing strategy.
