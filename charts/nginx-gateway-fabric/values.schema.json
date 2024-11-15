@@ -221,7 +221,7 @@
             "pullPolicy": {
               "default": "IfNotPresent",
               "enum": [
-                "IfNotPresent",
+                "Always",
                 "IfNotPresent",
                 "Never"
               ],
@@ -382,7 +382,7 @@
             "pullPolicy": {
               "default": "IfNotPresent",
               "enum": [
-                "IfNotPresent",
+                "Always",
                 "IfNotPresent",
                 "Never"
               ],
